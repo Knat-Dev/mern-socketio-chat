@@ -9,14 +9,17 @@ import { createServer } from 'http';
 const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
 const app = express();
 
+// Express middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const http = createServer(app);
 
 http.listen(port, async () => {
   console.log(`Server is listening on ${process.env.HOST_URL}:${port}`);
-
-  await mongoose.connect(
-    'mongodb://localhost:27017/socket-io-chat?readPreference=primary&appname=MongoDB%20Compass%20Community&ssl=false',
-    { useNewUrlParser: true, useUnifiedTopology: true }
-  );
+  await mongoose.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
   console.log('Connected to MongoDB!');
 });
