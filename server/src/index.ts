@@ -1,10 +1,12 @@
 // Env
 import dotenv from 'dotenv';
-dotenv.config();
-
 import express from 'express';
-import mongoose from 'mongoose';
 import { createServer } from 'http';
+import mongoose from 'mongoose';
+import { logger } from './middleware';
+import { chatRoomsRoute } from './routes/chatRooms.route';
+import { userRouter } from './routes/users.route';
+dotenv.config();
 
 const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
 const app = express();
@@ -12,6 +14,11 @@ const app = express();
 // Express middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(logger);
+
+// Routers
+app.use('/users', userRouter);
+app.use('/chats', chatRoomsRoute);
 
 const http = createServer(app);
 
