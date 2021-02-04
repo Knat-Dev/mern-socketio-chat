@@ -8,14 +8,40 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { Form, Formik } from 'formik';
-import React, { FC } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import React, { FC, useCallback, useEffect, useState } from 'react';
+import { Link, RouteComponentProps } from 'react-router-dom';
+import { Socket } from 'socket.io-client';
 import { CenteredFullHeight, FullPage } from '../../components';
 import InputField from '../../components/InputField';
-import { toErrorMap } from '../../util';
+import { ChatRoom } from '../../types';
+import { toErrorMap, useAuth } from '../../util';
 
-export const Dashboard: FC<RouteComponentProps> = ({ history }) => {
+interface Props extends RouteComponentProps {
+  socket: Socket | null;
+}
+
+export const Dashboard: FC<Props> = ({ history, socket }) => {
+  useAuth();
+  const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const toast = useToast();
+
+  const getChatRooms = async () => {
+    console.log(sessionStorage.getItem('cc_token'));
+    const response = await axios.get('/chats', {
+      headers: {
+        Authorization: 'Bearer ' + sessionStorage.getItem('cc_token'),
+      },
+    });
+    if (response.status === 200) {
+      setRooms(response.data);
+    }
+  };
+
+  const getChatRoomsCallback = useCallback(getChatRooms, []);
+
+  useEffect(() => {
+    getChatRoomsCallback();
+  }, [getChatRoomsCallback]);
 
   return (
     <FullPage>
@@ -76,12 +102,24 @@ export const Dashboard: FC<RouteComponentProps> = ({ history }) => {
             )}
           </Formik>
           <Box id="channels" mt={4}>
-            <Flex justify="space-between">
-              <Text>Room #1</Text>
-              <Button size="xs" colorScheme="blue">
-                JOIN
-              </Button>
-            </Flex>
+            {rooms.map((room) => (
+              <Flex
+                my={2}
+                _last={{ marginBottom: 0 }}
+                key={room._id}
+                justify="space-between"
+              >
+                <Text>{room.name}</Text>
+                <Button
+                  as={Link}
+                  to={`/chatroom/${room._id}`}
+                  size="xs"
+                  colorScheme="blue"
+                >
+                  JOIN
+                </Button>
+              </Flex>
+            ))}
           </Box>
         </Box>
       </CenteredFullHeight>

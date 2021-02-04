@@ -7,7 +7,11 @@ import { CenteredFullHeight, FullPage } from '../../components';
 import InputField from '../../components/InputField';
 import { toErrorMap } from '../../util';
 
-export const Login: FC<RouteComponentProps> = ({ history }) => {
+interface Props extends RouteComponentProps {
+  setupSocket: () => void;
+}
+
+export const Login: FC<Props> = ({ history, setupSocket }) => {
   const toast = useToast();
 
   return (
@@ -44,6 +48,8 @@ export const Login: FC<RouteComponentProps> = ({ history }) => {
                     duration: 5000,
                     isClosable: true,
                   });
+                  sessionStorage.setItem('cc_token', response.data.token);
+                  setupSocket();
                   history.push('/');
                 }
               } catch (e) {

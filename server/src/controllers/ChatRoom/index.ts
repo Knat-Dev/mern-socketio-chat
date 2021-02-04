@@ -28,3 +28,10 @@ export const createChatRoom = async (
 
   return res.status(200).json('Chatroom created!');
 };
+
+export const getAllRooms = async (req: Request, res: Response) => {
+  const userId = req.payload?.id;
+  if (!userId) return;
+
+  return res.json(await ChatRoomModel.find());
+};
