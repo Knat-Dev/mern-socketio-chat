@@ -56,17 +56,19 @@ export const register = async (req: Request<RegisterInput>, res: Response) => {
     console.log(e);
   }
 
+  if (!name) errors.push({ field: 'name', message: 'Name is required!' });
+
   if (!emailRegex.test(email))
     errors.push({ field: 'email', message: 'Email is not valid!' });
 
   if (password.length < 6)
     errors.push({ field: 'password', message: 'Password is too short' });
 
-  if (errors.length > 0) return res.status(400).send({ errors });
+  if (errors.length > 0) return res.json({ errors });
 
   try {
     const hashedPassword = await hash(password, 10);
-    const user = await UserModel.create({
+    await UserModel.create({
       name,
       email,
       password: hashedPassword,
@@ -75,6 +77,6 @@ export const register = async (req: Request<RegisterInput>, res: Response) => {
       message: 'User was created successfully!\nYou may sign in.',
     });
   } catch (e) {
-    console.log('hey');
+    console.log(e);
   }
 };
