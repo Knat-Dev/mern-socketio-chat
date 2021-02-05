@@ -44,7 +44,7 @@ export const Login: FC<Props> = ({ history, setupSocket }) => {
                     title: 'Success!',
                     description: response.data.message,
                     status: 'success',
-                    position: 'bottom-left',
+                    position: 'top-left',
                     duration: 5000,
                     isClosable: true,
                   });

@@ -22,7 +22,7 @@ export const Router = () => {
         setSocket(null);
         toast({
           status: 'error',
-          position: 'bottom-left',
+          position: 'top-left',
           duration: 3000,
           title: 'Disconnected!',
           description:
@@ -41,11 +41,15 @@ export const Router = () => {
         });
       });
     }
-  }, [toast]);
+  }, [toast, socket]);
 
   useEffect(() => {
     setUpSocketCallback();
-  }, [setUpSocketCallback]);
+
+    return () => {
+      socket?.disconnect();
+    };
+  }, [setUpSocketCallback, socket]);
 
   return (
     <BrowserRouter>
@@ -64,9 +68,7 @@ export const Router = () => {
         />
         <Route
           path="/chatroom/:id"
-          render={(props) =>
-            socket ? <Chatroom socket={socket} {...props} /> : undefined
-          }
+          render={(props) => <Chatroom socket={socket} {...props} />}
         />
       </Switch>
     </BrowserRouter>

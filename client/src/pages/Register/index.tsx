@@ -40,7 +40,7 @@ export const Register: FC<RouteComponentProps> = ({ history }) => {
                     title: 'Account created!.',
                     description: response.data.message,
                     status: 'success',
-                    position: 'bottom-left',
+                    position: 'top-left',
                     duration: 5000,
                     isClosable: true,
                   });

@@ -73,7 +73,7 @@ export const Dashboard: FC<Props> = ({ history, socket }) => {
                     title: 'You are connected!.',
                     description: response.data.message,
                     status: 'success',
-                    position: 'bottom-left',
+                    position: 'top-left',
                     duration: 9000,
                     isClosable: true,
                   });

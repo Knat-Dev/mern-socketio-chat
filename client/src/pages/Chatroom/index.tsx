@@ -19,28 +19,28 @@ export const Chatroom: FC<Props> = ({ match, socket }) => {
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    console.log(socket);
     if (socket) {
-      socket?.emit('joinRoom', {
+      socket.emit('joinRoom', {
         id,
       });
 
       return () => {
-        socket?.emit('leaveRoom', { id });
+        socket.emit('leaveRoom', { id });
       };
     }
-  }, []);
+  }, [socket, id]);
 
   useEffect(() => {
     socket?.on('newMessage', (message: Message) => {
-      console.log(message);
       setMessages([...messages, message]);
     });
 
     return () => {
       socket?.off('newMessage');
     };
-  }, [messages]);
+  }, [messages, socket]);
+
+  if (!socket) return null;
 
   return (
     <FullPage>
