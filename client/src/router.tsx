@@ -10,8 +10,8 @@ export const Router = () => {
 
   const setUpSocketCallback = useCallback(() => {
     const token = sessionStorage.getItem('cc_token');
-    if (token?.length) {
-      const newSocket = io('/', {
+    if (token && !socket) {
+      const newSocket = io('ws://localhost:5000', {
         query: {
           token: sessionStorage.getItem('cc_token')!,
         },
@@ -20,7 +20,6 @@ export const Router = () => {
 
       newSocket.on('disconnect', () => {
         setSocket(null);
-        setTimeout(setUpSocketCallback, 3000);
         toast({
           status: 'error',
           position: 'bottom-left',
@@ -36,7 +35,7 @@ export const Router = () => {
           title: 'Connected!',
           description: 'You are now connected to the server via websockets',
           status: 'success',
-          position: 'bottom-left',
+          position: 'top-left',
           duration: 5000,
           isClosable: true,
         });
@@ -65,7 +64,9 @@ export const Router = () => {
         />
         <Route
           path="/chatroom/:id"
-          render={(props) => <Chatroom socket={socket} {...props} />}
+          render={(props) =>
+            socket ? <Chatroom socket={socket} {...props} /> : undefined
+          }
         />
       </Switch>
     </BrowserRouter>
