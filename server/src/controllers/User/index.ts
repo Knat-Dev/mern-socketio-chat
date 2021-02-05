@@ -1,8 +1,14 @@
+import { DocumentType } from '@typegoose/typegoose';
 import { compare, hash } from 'bcryptjs';
 import { Response } from 'express';
-import { sign } from 'jsonwebtoken';
-import { UserModel } from '../../models';
+import { verify } from 'jsonwebtoken';
+import { User, UserModel } from '../../models';
 import { LoginInput, RegisterInput, Request } from '../../types';
+import {
+  createAccessToken,
+  createRefreshToken,
+  sendRefreshToken,
+} from '../../utils/Tokens';
 
 export const login = async (req: Request<LoginInput>, res: Response) => {
   const { email, password } = req.body;
@@ -22,7 +28,8 @@ export const login = async (req: Request<LoginInput>, res: Response) => {
     if (!valid) errors.push({ field: 'password', message: 'Bad password' });
     if (errors.length > 0) return res.status(400).json({ errors });
 
-    const token = sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = createAccessToken(user);
+    sendRefreshToken(res, createRefreshToken(user));
     return res.json({ message: 'You have signed in successfully', token });
   } catch (e) {
     console.log(e);
@@ -79,4 +86,22 @@ export const register = async (req: Request<RegisterInput>, res: Response) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+export const refresh = async (req: Request, res: Response) => {
+  const token = req.cookies.socket_cookie;
+  if (!token) return res.send({ ok: false, accessToken: '' });
+
+  let payload: any;
+  try {
+    payload = verify(token, `${process.env.JWT_REFRESH_SECRET}`);
+  } catch (e) {
+    return res.send({ ok: false, accessToken: '', ...e });
+  }
+
+  const user: DocumentType<User> | null = await UserModel.findById(payload.id);
+  if (!user) return res.send({ ok: false, accessToken: '' });
+
+  sendRefreshToken(res, createRefreshToken(user)); // send new refresh token as cookie
+  return res.send({ ok: true, accessToken: createAccessToken(user) });
 };

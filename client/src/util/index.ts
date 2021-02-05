@@ -21,3 +21,11 @@ export const useAuth = () => {
     if (!token) history.push('/login');
   }, [history]);
 };
+
+export const setAccessToken = (token: string) => {
+  sessionStorage.setItem('cc_token', token);
+};
+
+export const getAccessToken = () => {
+  return sessionStorage.getItem('cc_token');
+};

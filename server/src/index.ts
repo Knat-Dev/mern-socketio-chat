@@ -1,4 +1,6 @@
 // Env
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import { createServer } from 'http';
@@ -17,8 +19,16 @@ const app = express();
 
 // Express middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    credentials: true,
+  })
+);
 
 // Routers
 app.use('/users', userRouter);
@@ -43,7 +53,6 @@ const io = new Server(http, {
 });
 
 io.use((socket: Socket, next: any) => {
-  console.log('socket');
   const token = socket.handshake.query.token as string;
 
   try {
@@ -51,7 +60,7 @@ io.use((socket: Socket, next: any) => {
     socket.payload = payload;
     return next();
   } catch (e) {
-    console.log(e);
+    console.log('unauth');
   }
 });
 

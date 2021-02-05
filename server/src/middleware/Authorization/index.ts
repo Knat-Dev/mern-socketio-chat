@@ -8,7 +8,6 @@ export const isAuthorized: Handler = (
   next: NextFunction
 ) => {
   const token = req.headers.authorization?.split('Bearer ')[1];
-
   if (!token) {
     return res.status(401).json({ message: 'Unauthorized' });
   } else {

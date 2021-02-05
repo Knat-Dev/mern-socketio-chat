@@ -6,7 +6,7 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import axios from 'axios';
+import { AxiosResponse } from 'axios';
 import { Form, Formik } from 'formik';
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { Link, RouteComponentProps } from 'react-router-dom';
@@ -15,6 +15,7 @@ import { CenteredFullHeight, FullPage } from '../../components';
 import InputField from '../../components/InputField';
 import { ChatRoom } from '../../types';
 import { toErrorMap, useAuth } from '../../util';
+import axios from '../../util/axios';
 
 interface Props extends RouteComponentProps {
   socket: Socket | null;
@@ -26,21 +27,26 @@ export const Dashboard: FC<Props> = ({ history, socket }) => {
   const toast = useToast();
 
   const getChatRooms = async () => {
-    console.log(sessionStorage.getItem('cc_token'));
-    const response = await axios.get('/chats', {
-      headers: {
-        Authorization: 'Bearer ' + sessionStorage.getItem('cc_token'),
-      },
-    });
-    if (response.status === 200) {
-      setRooms(response.data);
+    try {
+      const response: AxiosResponse<ChatRoom[]> = await axios.get('/chats');
+      if (response?.status === 200) {
+        setRooms(response.data);
+      }
+    } catch (e) {
+      console.log('hey');
     }
   };
 
   const getChatRoomsCallback = useCallback(getChatRooms, []);
 
   useEffect(() => {
-    getChatRoomsCallback();
+    (async () => {
+      try {
+        await getChatRoomsCallback();
+      } catch (e) {
+        console.log('hi');
+      }
+    })();
   }, [getChatRoomsCallback]);
 
   return (
@@ -74,7 +80,7 @@ export const Dashboard: FC<Props> = ({ history, socket }) => {
                     description: response.data.message,
                     status: 'success',
                     position: 'top-left',
-                    duration: 9000,
+                    duration: 5000,
                     isClosable: true,
                   });
                   history.push('/login');

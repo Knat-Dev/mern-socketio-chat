@@ -6,6 +6,7 @@ declare global {
       HOST_URL: string;
       MONGO_URL: string;
       JWT_SECRET: string;
+      JWT_REFRESH_SECRET: string;
     }
   }
 }
